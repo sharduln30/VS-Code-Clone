@@ -3,15 +3,18 @@ require('jstree');
 const nodePath = require('path');
 const fs = require('fs');
 
-$(document).ready(function(){
+$(document).ready(async function () {
+
+    let editor = createEditor();
+    console.log(editor);
 
     let currpath = process.cwd();
     console.log(currpath);
 
     let data = [];
     let baseobj = {
-        id:currpath,
-        parent:'#',
+        id: currpath,
+        parent: '#',
         text: getNamefromPath(currpath)
     }
 
@@ -21,41 +24,61 @@ $(document).ready(function(){
     data.push(baseobj);
 
     $('#jstree').jstree({
-        "core":{
+        "core": {
             "check_callback": true,
-            "data":data
+            "data": data
         }
-    }).on('open_node.jstree', function(e, data) {
+    }).on('open_node.jstree', function (e, data) {
         // console.log(data.node.children);
 
-        data.node.children.forEach(function(child) {
+        data.node.children.forEach(function (child) {
             let childDirectories = getCurrentDirectories(child);
-            childDirectories.forEach(function(directory){
-               $('#jstree').jstree().create_node(child,directory,'last') 
+            childDirectories.forEach(function (directory) {
+                $('#jstree').jstree().create_node(child, directory, 'last')
             })
         });
     });
 })
 
-function getNamefromPath(path){
+function getNamefromPath(path) {
     return nodePath.basename(path);
 }
 
-function getCurrentDirectories(path){
-   if(fs.lstatSync(path).isFile()){
+function getCurrentDirectories(path) {
+    if (fs.lstatSync(path).isFile()) {
         return [];
     }
     let files = fs.readdirSync(path);
     console.log(files);
 
     let rv = [];
-    for(let i=0;i<files.length;i++){
+    for (let i = 0; i < files.length; i++) {
         let file = files[i];
         rv.push({
-            id:nodePath.join(path,file),
-            parent:path,
-            text:file
+            id: nodePath.join(path, file),
+            parent: path,
+            text: file
         })
     }
     return rv;
+}
+
+function createEditor() {
+
+    return new Promise(function (resolve, reject) {
+        let monacoLoader = require('./node_modules/monaco-editor/min/vs/loader.js');
+
+        monacoLoader.require.config({ paths: { 'vs': '../node_modules/monaco-editor/min/vs' } });
+
+        monacoLoader.require(['vs/editor/editor.main'], function () {
+            var editor = monaco.editor.create(document.getElementById('editor'), {
+                value: [
+                    'function x() {',
+                    '\tconsole.log("Hello world!");',
+                    '}'
+                ].join('\n'),
+                language: 'javascript'
+            });
+        });
+    })
 }

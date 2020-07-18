@@ -2,19 +2,23 @@
     <head>
         <title>VS-Code</title>
         <link rel = 'stylesheet' href='./index.css'> 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
     </head>
     <body>
         <div id = 'container'>
             <div id ='top-bar'>top-bar</div>
             <div id ='main-window'>
                 
-                <div id = 'explorer'>explorer</div>
+                <div id = 'explorer'>
+                    <div id='jstree'></div>
+                </div>
                 <div id = 'editor-terminal-window'>
                     <div id = 'editor'>editor</div>
                     <div id = 'terminal'>terminal</div>
                 </div>
             </div>
         </div>
-        
+
     </body>
+    <script src="./index.js"></script>
 </html>

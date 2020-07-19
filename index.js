@@ -29,12 +29,11 @@ $(document).ready(async function () {
     });
 
 
-
-    let editor = createEditor();
-    console.log(editor);
+    let editor = await createEditor();
+    // console.log(editor);
 
     let currpath = process.cwd();
-    console.log(currpath);
+    // console.log(currpath);
 
     let data = [];
     let baseobj = {
@@ -61,9 +60,21 @@ $(document).ready(async function () {
             childDirectories.forEach(function (directory) {
                 $('#jstree').jstree().create_node(child, directory, 'last')
             })
-        });
+        })
+    }).on("select_node.jstree", function (e, data){
+        console.log(data.node.id);
+        updateEditor(data.node.id);
     });
+    function updateEditor(path){
+
+        let data = fs.readFileSync(path).toString();
+        // console.log(editor);
+        // console.log(data);
+        editor.setValue(data);
+    }
 })
+
+
 
 function getNamefromPath(path) {
     return nodePath.basename(path);
@@ -74,7 +85,7 @@ function getCurrentDirectories(path) {
         return [];
     }
     let files = fs.readdirSync(path);
-    console.log(files);
+    // console.log(files);
 
     let rv = [];
     for (let i = 0; i < files.length; i++) {
@@ -104,6 +115,8 @@ function createEditor() {
                 ].join('\n'),
                 language: 'javascript'
             });
+
+            resolve(editor);
         });
     })
 }

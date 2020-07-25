@@ -6,6 +6,7 @@ const fs = require('fs');
 var os = require('os');
 var pty = require('node-pty');
 var Terminal = require('xterm').Terminal;
+const { FitAddon } = require("xterm-addon-fit");
 
 let db = {};
 
@@ -23,9 +24,21 @@ $(document).ready(async function () {
     });
 
     // Initialize xterm.js and attach it to the DOM
-    const xterm = new Terminal();
+    const xterm = new Terminal({
+        
+        fontSize: 14
+        // default is canvas
+    });
+    xterm.setOption('theme', {
+        background: "#5448f7",
+        foreground: "white",
+    });
+    const fitAddon = new FitAddon();
+    xterm.loadAddon(fitAddon);
+
     xterm.open(document.getElementById('terminal'));
 
+    fitAddon.fit();
     // Setup communication between xterm.js and node-pty
     xterm.onData(data => ptyProcess.write(data));
     ptyProcess.on('data', function (data) {
@@ -52,7 +65,7 @@ $(document).ready(async function () {
         tabs.tabs("refresh");
     })
 
-    tabs.on("click", function () {
+    tabs.on("click", ".ul-tabs-tab", function () {
         console.log("tab clicked");
     })
 
@@ -178,15 +191,29 @@ function createEditor() {
         monacoLoader.require.config({ paths: { 'vs': './node_modules/monaco-editor/min/vs' } });
 
         monacoLoader.require(['vs/editor/editor.main'], function () {
+            monaco.editor.defineTheme('myTheme', {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [{ background: '#1e2024' }],
+                "colors": {
+                    "editor.foreground": "#F8F8F8",
+                    "editor.background": "#1e2024",
+                    "editor.selectionBackground": "#DDF0FF33",
+                    "editor.lineHighlightBackground": "#FFFFFF08",
+                    "editorCursor.foreground": "#A7A7A7",
+                    "editorWhitespace.foreground": "#FFFFFF40"
+                }
+            });
+            monaco.editor.setTheme('myTheme');
             var editor = monaco.editor.create(document.getElementById('editor'), {
                 value: [
                     'function x() {',
                     '\tconsole.log("Hello world!");',
                     '}'
                 ].join('\n'),
-                language: 'javascript'
+                language: 'javascript',
+                theme: "myTheme"
             });
-
             resolve(editor);
         });
     })
